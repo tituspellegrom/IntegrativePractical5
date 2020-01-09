@@ -53,12 +53,15 @@ def main():
     mdl.addConstrs(u[i] >= q[i] for i in N);
     mdl.addConstrs(u[i] <= Q for i in N);
 
+    # Om model af te kappen
+    mdl.Params.MIPGap = 0.1
+    mdl.Params.TimeLimit = 45
     mdl.optimize()
 
+    # zit vast de goede tussen
     mdl.write("out.mps")
     mdl.write("out.sol")
     mdl.write("out.hnt")
-    mdl.write("out.bas")
     mdl.write("out.prm")
     mdl.write("out.attr")
     mdl.write("out.json")
