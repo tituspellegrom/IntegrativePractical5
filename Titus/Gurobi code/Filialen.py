@@ -32,7 +32,7 @@ def create_edge_dict(nodes, matrix):
             edge_val = matrix.iloc[i, j]
 
             if edge_val is None:
-                edge__val = matrix.iloc[j, i]
+                edge_val = matrix.iloc[j, i]
 
             dict[names] = edge_val
     return dict
@@ -61,6 +61,8 @@ def create_store_edges(stores, city_matrix, same_city_value=0):
     return stores_edges
 
 
+hub = ("Nijmegen", 'hub')
+
 df_demand = pd.read_excel('AH-Maandag.xlsx', header=None)
 df_demand = df_demand.where((pd.notnull(df_demand)), None)
 df_km = pd.read_excel('km.xlsx')
@@ -72,16 +74,19 @@ cities, df_cities_km = list(df_km.iloc[:, 0]),  df_km.iloc[:, 1:]
 df_cities_min = df_min.iloc[:, 1:]
 
 stores_demand = create_stores_demand(cities, df_demand)
-stores, demand = gp.multidict(stores_demand)
+stores = [*stores_demand.keys()]
+
+# Meant to differentiate the hub from stores
+stores_and_hub = (*stores, hub)
 
 cities_km = create_edge_dict(cities, df_cities_km)
-stores_km = create_store_edges(stores, cities_km, same_city_value=0)      # same_city stores  => 0 km apart
+stores_km = create_store_edges(stores_and_hub, cities_km, same_city_value=0)      # same_city stores  => 0 km apart
 
 cities_min = create_edge_dict(cities, df_cities_min)
-stores_min = create_store_edges(stores, cities_min, same_city_value=5)    # same_city stores => 5 min apart
+stores_min = create_store_edges(stores_and_hub, cities_min, same_city_value=5)    # same_city stores => 5 min apart
 
-# print(distance)
-# print(distance_dict)
-print(stores_min)
-print(stores_km)
+stores_edges = [*stores_km.keys()]
 
+#print(stores)
+#print(stores_edges)
+#print(stores_demand)
