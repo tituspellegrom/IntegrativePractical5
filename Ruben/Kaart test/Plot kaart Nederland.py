@@ -32,14 +32,19 @@ def readData():
 def main():
     # Initialisation
     shapefile = gpd.read_file("NLD_adm0.shp")
-    fig = plt.figure(figsize=(40,20))
-    fig = shapefile.plot()
-    
     mData = readData()
-    for i in range(29):
-        fig.scatter(mData[i][3], mData[i][4], zorder=1, alpha= 0.2, c='black', s=10)       
+    cities = mData[:,1]
+    fig = shapefile.plot(figsize=(40,20))
     
+    for i,type in enumerate(cities):
+        x = mData[i][3]
+        y = mData[i][4]
+        plt.scatter(x, y, c='black', s=40, alpha=0.6)
+        plt.text(x-0.04, y-0.04, type, fontsize=9, rotation=0)
+    fig.axes.get_xaxis().set_visible(False)
+    fig.axes.get_yaxis().set_visible(False)
     plt.savefig("Nederland.jpg")
+    
     # Output
 
 ###########################################################
