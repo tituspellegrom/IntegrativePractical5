@@ -8,10 +8,11 @@ def create_city_demand(cities, demand):
     for index, row in demand.iterrows():
         city, demands = row[0], row[1:]
 
+
         if city not in cities:
             raise ReferenceError("De opgegeven winkelstad bestaat niet in het netwerk!")
 
-        city_demand[city] = [round(demand) for demand in demands if demand is not None]
+        city_demand[city] = sum([round(demand) for demand in demands if demand is not None])
 
     return city_demand
 
@@ -24,6 +25,8 @@ def create_edge_dict(nodes, matrix):
 
     for i in range(rows):
         for j in range(columns):
+            if i == j:
+                continue
 
             names = (nodes[i], nodes[j])
             edge_val = matrix.iloc[i, j]
@@ -63,4 +66,3 @@ city_min = create_edge_dict(cities, df_cities_min)
 
 city_edges = [*city_km.keys()]
 
-#print(city_demand)
