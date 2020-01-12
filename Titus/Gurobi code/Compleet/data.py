@@ -67,7 +67,10 @@ def create_store_edges(stores, city_matrix, same_city_value=0):
             if store1_city == store2_city:
                 # Ignore edge to itself
                 if store1_branch == store2_branch:
-                    continue
+                    if store1_branch == 'hub':
+                        edge_value = 0
+                    else:
+                        continue
                 else:
                     edge_value = same_city_value
 
@@ -121,6 +124,3 @@ cities_min = create_edge_dict(CITIES, df_cities_min)
 stores_min = create_store_edges(stores_and_hub, cities_min, same_city_value=5)    # same_city stores => 5 min apart
 
 stores_and_hub_edges = [*stores_min.keys()]
-
-
-
