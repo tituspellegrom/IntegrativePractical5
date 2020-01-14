@@ -124,3 +124,8 @@ cities_min = create_edge_dict(CITIES, df_cities_min)
 stores_min = create_store_edges(stores_and_hub, cities_min, same_city_value=5)    # same_city stores => 5 min apart
 
 stores_and_hub_edges = [*stores_min.keys()]
+
+
+example_trip = [(('Apeldoorn', 0), ('Apeldoorn', 1)), (('Apeldoorn', 1), ('Apeldoorn', 2)), (('Apeldoorn', 2), ('Apeldoorn', 0)),
+ (('Enkhuizen', 0), ('Medemblik', 0)), (('Medemblik', 0), ('Enkhuizen', 0)), (('Nijmegen', 2), ('Nijmegen', 'hub')),
+ (('Nijmegen', 'hub'),('Nijmegen', 2))]

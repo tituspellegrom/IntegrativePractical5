@@ -1,19 +1,24 @@
 # literature: https://hrcak.srce.hr/file/285563
 
-
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import gurobipy as gp
-
+from itertools import chain, combinations
 # eigen module
 import data
-import math
+import DFS
+
+
+def powerset(iterable):
+    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(1,len(s)+1))
+
 
 def main():
 
     # Initialisation
     N = data.stores
+    #S = powerset(N)
     V = data.stores_and_hub
     A = data.stores_and_hub_edges
     km = data.stores_km
@@ -28,6 +33,11 @@ def main():
     Q = data.TROLLEY_CAPACITY * data.BOXES_PER_TROLLEY * data.TOMATOES_PER_BOX
     q = data.stores_demand
 
+    ### TEST
+    test_q = q.copy()
+    test_q[data.HUB] = 0
+    print(test_q)
+
     trucks = tuple(f"truck{i}" for i in range(data.AMOUNT_OF_TRUCKS+1))
     trips = tuple(f"Trip{i}" for i in range(3))
 
@@ -35,36 +45,54 @@ def main():
     mdl = gp.Model("CVRP")
 
     x = mdl.addVars(trucks, trips, A, vtype=gp.GRB.BINARY)
+    y = mdl.addVars(trucks, trips, V, vtype=gp.GRB.CONTINUOUS)
+    print(y)
+    print(x)
 
+    mdl.update()
     mdl.modelSense = gp.GRB.MINIMIZE
 
     # TODO: set unloading cost
     mdl.setObjective(ckm * gp.quicksum(x[truck, trip, i, j] * km[i, j] for i, j in A for trip in trips for truck in trucks) +
                      cmin * gp.quicksum(x[truck, trip, i, j] * time[i, j] for i, j in A for trip in trips for truck in trucks)
-                     #ctr * data.AMOUNT_OF_TRUCKS +
-                     #crpd * math.ceil(sum(demand for demand in q.values()) / (data.TOMATOES_PER_BOX * data.BOXES_PER_TROLLEY))
-                     )
+                    # ctr * data.AMOUNT_OF_TRUCKS +
+                    # crpd * math.ceil(sum(demand for demand in q.values()) / (data.TOMATOES_PER_BOX * data.BOXES_PER_TROLLEY)) +
+                    # 1000 * gp.quicksum([DFS.count_cycles(DFS.reduce_graph([(i, j) for i, j in A if gp.x[truck, trip, i, j] == 1]),
+                    #                                         [(i, j) for i, j in A if x[truck, trip, i, j].X == 1]
+                    #                                     ) - 1 ] for trip in trips for truck in trucks)
 
-    # Every store is visited by a truck exactly once
+                    )
+
+    # EVERY STORE VISITED ONLY ONCE
     mdl.addConstrs(gp.quicksum(x[truck, trip, i, j] for trip in trips for truck in trucks for j in N if j != i) == 1
                    for i in N);
 
-    # TODO: FIX bug, route must start and end at hub
+    # 1 TIME LEAVING HUB
     mdl.addConstrs(gp.quicksum(x[truck, trip, i, j] for i, j in A if i == data.HUB and j != data.HUB) == 1
                    for trip in trips for truck in trucks)
 
-    # all trips must end at the hub
+    # EVERY NODE 1 TRUCK GOING IN => 1 GOING OUT
     mdl.addConstrs(gp.quicksum(x[truck, trip, i, j] for i, j in A if j == store) ==
                    gp.quicksum(x[truck, trip, i, j] for i, j in A if i == store)
-                   for store in N for trip in trips for truck in trucks)
+                   for store in V for trip in trips for truck in trucks)
 
-    # Route capacity constraint
+    # ROUTE CAPACITY
     mdl.addConstrs(gp.quicksum( q[j] * x[truck, trip, i, j] for i, j in A if i != j and j != data.HUB)
                    <= Q for trip in trips for truck in trucks)
 
-    # TODO: Add sub-tour eliminination contraint => means no cycles without the hub
+    ### 2e Paper
+    mdl.addConstrs(test_q[v] <= y[truck, trip, v[0], v[1]] for v in V for trip in trips for truck in trucks)
+    mdl.addConstrs(y[truck, trip, v[0], v[1]] <= Q for v in V for trip in trips for truck in trucks)
+    mdl.addConstrs(y[truck, trip, j[0], j[1]] >= y[truck, trip, i[0], i[1]] + test_q[j]*x[truck, trip, i, j] - Q * (1 - x[truck, trip, i, j]) for i in V for j in V if i!=j or (i==j and i==data.HUB) for trip in trips for truck in trucks)
 
-    # Every truck's trips should sum up to less than 24 hours
+
+
+    # mdl.addConstrs(DFS.count_cycles(DFS.reduce_graph([(i, j) for i, j in A if x[truck, trip, i, j].x == 1]),
+    #                                 [(i, j) for i, j in A if x[truck, trip, i, j].x == 1]
+    #                                 )
+    #                 == 1 for trip in trips for truck in trucks)
+
+    # TIME CONSTRAINT
     mdl.addConstrs(gp.quicksum(x[truck, trip, i, j] * time[i, j] for i, j in A for trip in trips) <= 24*60 for truck in trucks)
 
     mdl.optimize()
@@ -79,9 +107,14 @@ def main():
     mdl.write("out.json")
 
     dict_ = {}
+
     if mdl.status == gp.GRB.OPTIMAL:
         for truck in trucks:
             for trip in trips:
+                edges = [(i, j) for i, j in A if x[truck, trip, i, j].X == 1]
+                graph = DFS.reduce_graph(edges)
+                print(f"Edges: {edges}")
+                print(f"We count {DFS.count_cycles(graph, edges)} cycles")
                 for i, j in A:
                     if x[truck, trip, i, j].X > 0:
                         dict_[(truck, trip, i, j)] = x[truck, trip, i, j].X
