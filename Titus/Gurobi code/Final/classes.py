@@ -97,7 +97,7 @@ class Company:
     IN_CITY_TIME = 5
     IN_CITY_DISTANCE = 0
 
-    def __init__(self, name, roll_capacity, truck_cost, cost_km, cost_hour, roll_cost, trucks, hub):
+    def __init__(self, name, roll_capacity, truck_cost, cost_km, cost_hour, roll_cost, trucks, hub, load=False):
         self.name = name
         self.roll_capacity = roll_capacity
         self.truck_cost = truck_cost
@@ -106,12 +106,14 @@ class Company:
         self.roll_cost = roll_cost
         self.trucks = trucks
         self.hub_city = hub
-        self.create_stores()
         self.hub_store = Store(self, hub, 'hub')
         for day in Days:
             self.hub_store.add_demand(day, 0)
-        self.load_demand()
-        self.hub_and_stores = [self.hub_store] + self.stores
+
+        if load:
+            self.create_stores()
+            self.load_demand()
+            self.hub_and_stores = [self.hub_store] + self.stores
 
     @property
     def truck_capacity(self):
@@ -192,9 +194,8 @@ cities_km = create_edge_dict(df_km.iloc[:, 0], df_km.iloc[:, 1:])
 cities_min = create_edge_dict(df_min.iloc[:, 0], df_min.iloc[:, 1:])
 
 AH = Company("AH", 36, 110, 0.8, 10, 5.8, 5, Cities.Nijmegen)
-
-#J = Company("J", 30, 105, 1, 9.9, 6, 4, Cities.Tilburg)
-#K = Company("K", 28, 107, 0.7, 10.1, 5.6, 5, Cities.Haarlem)
-#FFL = Company("FFL", 40, 110, 0.9, 9.5, 5, 15, Cities.Huizen)
+J = Company("J", 30, 105, 1, 9.9, 6, 4, Cities.Tilburg, load=False)
+K = Company("K", 28, 107, 0.7, 10.1, 5.6, 5, Cities.Haarlem, load=False)
+FFL = Company("FFL", 40, 110, 0.9, 9.5, 5, 15, Cities.Huizen, load=False)
 
 

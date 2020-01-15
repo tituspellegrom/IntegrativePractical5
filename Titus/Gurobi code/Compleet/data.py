@@ -8,7 +8,6 @@ def create_stores_demand(demand):
     # Used to still include those cities as possible route nodes
     #cities_named = { city : False for city in CITIES}
 
-
     for index, row in demand.iterrows():
         city, demands = row[0], row[1:]
 
@@ -23,10 +22,10 @@ def create_stores_demand(demand):
                 #cities_named[city] = True
 
     # for city, named in cities_named.items():
-    #     if named is False:
-    #         fake_store = (city, 0)
-    #         stores_demand[fake_store] = 0
-    #         print(city)
+    #     #     if named is False:
+    #     #         fake_store = (city, 0)
+    #     #         stores_demand[fake_store] = 0
+    #     #         print(city)
 
     return stores_demand
 

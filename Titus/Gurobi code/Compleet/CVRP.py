@@ -81,12 +81,12 @@ def main():
                    <= Q for trip in trips for truck in trucks)
 
     ### 2e Paper
-    mdl.addConstrs(test_q[v] <= y[truck, trip, v[0], v[1]] for v in V for trip in trips for truck in trucks)
-    mdl.addConstrs(y[truck, trip, v[0], v[1]] <= Q for v in V for trip in trips for truck in trucks)
-    mdl.addConstrs(y[truck, trip, j[0], j[1]] >= y[truck, trip, i[0], i[1]] + test_q[j]*x[truck, trip, i, j] - Q * (1 - x[truck, trip, i, j]) for i in V for j in V if i!=j or (i==j and i==data.HUB) for trip in trips for truck in trucks)
+    #mdl.addConstrs(test_q[v] <= y[truck, trip, v[0], v[1]] for v in V for trip in trips for truck in trucks)
+    #mdl.addConstrs(y[truck, trip, v[0], v[1]] <= Q for v in V for trip in trips for truck in trucks)
+    #mdl.addConstrs(y[truck, trip, j[0], j[1]] >= y[truck, trip, i[0], i[1]] + test_q[j]*x[truck, trip, i, j] - Q * (1 - x[truck, trip, i, j]) for i in V for j in V if i!=j or (i==j and i==data.HUB) for trip in trips for truck in trucks)
 
 
-
+    #mdl.addConstrs([] for i, j in A)
     # mdl.addConstrs(DFS.count_cycles(DFS.reduce_graph([(i, j) for i, j in A if x[truck, trip, i, j].x == 1]),
     #                                 [(i, j) for i, j in A if x[truck, trip, i, j].x == 1]
     #                                 )
