@@ -67,9 +67,9 @@ def main():
 
     mdl.addConstrs(gp.quicksum(x[i,j] for j in V if j != i) == 1 for i in N);
     mdl.addConstrs(gp.quicksum(x[i,j] for i in V if i != j) == 1 for j in N);
-    mdl.addConstrs((x[i,j] == 1) >> (u[i]+q[i] == u[j]) for i,j in A if i != V[0] and j != V[0]);
+    mdl.addConstrs((x[i,j] == 1) >> (u[i]+q[j] == u[j]) for i,j in A if i != V[0] and j != V[0]);
     mdl.addConstrs(u[i] >= q[i] for i in N);
-    mdl.addConstrs(u[i] + q[i] <= Q for i in N)
+    mdl.addConstrs(u[i] <= Q for i in N)
 
     mdl.Params.Timelimit = 80
     mdl.setParam(gp.GRB.Param.Cuts, 2)
