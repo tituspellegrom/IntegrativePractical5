@@ -97,7 +97,7 @@ class Company:
     IN_CITY_TIME = 5
     IN_CITY_DISTANCE = 0
 
-    def __init__(self, name, roll_capacity, truck_cost, cost_km, cost_hour, roll_cost, trucks, hub, load=False):
+    def __init__(self, name, roll_capacity, truck_cost, cost_km, cost_hour, roll_cost, trucks, hub, load=True):
         self.name = name
         self.roll_capacity = roll_capacity
         self.truck_cost = truck_cost
@@ -204,9 +204,9 @@ create_cities(df_cities)
 cities_km = create_edge_dict(df_km.iloc[:, 0], df_km.iloc[:, 1:])
 cities_min = create_edge_dict(df_min.iloc[:, 0], df_min.iloc[:, 1:])
 
-AH = Company("AH", 36, 110, 0.8, 10, 5.8, 5, Cities.Nijmegen, load=True)
-J = Company("J", 30, 105, 1, 9.9, 6, 4, Cities.Tilburg, load=False)
-K = Company("K", 28, 107, 0.7, 10.1, 5.6, 5, Cities.Haarlem, load=False)
+AH = Company("AH", 36, 110, 0.8, 10, 5.8, 5, Cities.Nijmegen)
+J = Company("J", 30, 105, 1, 9.9, 6, 4, Cities.Tilburg)
+K = Company("K", 28, 107, 0.7, 10.1, 5.6, 5, Cities.Haarlem)
 FFL = Company("FFL", 40, 110, 0.9, 9.5, 5, 15, Cities.Huizen, load=False)
 
 
