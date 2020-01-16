@@ -11,11 +11,18 @@ def powerset(iterable):
 
 clients = [classes.AH, classes.J, classes.K]
 combos = powerset(clients)
+cost = {}
 
 for combo in combos:
-    shell = copy.deep(classes.FFL)
-    print([company.name for company in combo])
+    shell = copy.deepcopy(classes.FFL)
+
+    for company in combo:
+        shell.stores.extend([store for store in company.stores])
+
+    combo_cost = CVRP.run_company(shell)
+    cost[combo] = combo_cost
 
 
+print(cost)
 
 

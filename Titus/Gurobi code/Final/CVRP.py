@@ -8,6 +8,9 @@ import gurobipy as gp
 import classes
 
 def run_day(company, day):
+    print("####################################")
+    print(f"RUNNING {company.name} for {day}")
+
     N = company.stores
     V = company.hub_and_stores
     A = [(i, j) for i in V for j in V if i != j]
@@ -35,13 +38,14 @@ def run_day(company, day):
 
     mdl.addConstrs(gp.quicksum(x[i, j] for j in V if j != i) == 1 for i in N);
     mdl.addConstrs(gp.quicksum(x[i, j] for i in V if i != j) == 1 for j in N);
-    mdl.addConstr(gp.quicksum(x[V[0], j] for j in N) == gp.quicksum(x[i, V[0]] for i in N));
+   # mdl.addConstr(gp.quicksum(x[V[0], j] for j in N) == gp.quicksum(x[i, V[0]] for i in N));
 
-    mdl.addConstrs((x[i, j] == 1) >> (u[i] + q[i] == u[j]) for i, j in A if i != V[0] and j != V[0]);
+    mdl.addConstrs((x[i, j] == 1) >> (u[i] + q[j] == u[j]) for i, j in A if i != V[0] and j != V[0]);
     mdl.addConstrs(u[i] >= q[i] for i in V);
     mdl.addConstrs(u[i] <= Q for i in V)
 
-    mdl.Params.Timelimit = 300
+    mdl.Params.Timelimit = 80
+
     mdl.setParam(gp.GRB.Param.Cuts, 2)
     mdl.setParam(gp.GRB.Param.Heuristics, 1)
 
@@ -49,13 +53,14 @@ def run_day(company, day):
 
     active_arcs = [a for a in A if x[a].x > 0.99]
     for i, j in active_arcs:
-        print(f"{i}=>{j}")
+        pass
+        #print(f"{i}=>{j}")
 
     # pm.plotPoints(mData)
     # pm.plotLine(active_arcs, mData)
 
     if gp.GRB.OPTIMAL:
-        return mdl.objVar
+        return mdl.objVal
     else:
         return None
 
@@ -68,6 +73,7 @@ def run_company(company):
         total += day_cost
 
     return total
+
 
 
 

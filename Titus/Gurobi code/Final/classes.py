@@ -107,13 +107,25 @@ class Company:
         self.trucks = trucks
         self.hub_city = hub
         self.hub_store = Store(self, hub, 'hub')
+        self.load = load
+        self.stores = []
+
         for day in Days:
             self.hub_store.add_demand(day, 0)
 
         if load:
             self.create_stores()
             self.load_demand()
-            self.hub_and_stores = [self.hub_store] + self.stores
+
+    @property
+    def hub_and_stores(self):
+        temp = [self.hub_store]
+        if len(self.stores) > 0:
+            for store in self.stores:
+                temp.extend([store])
+            return temp
+        else:
+            return temp
 
     @property
     def truck_capacity(self):
@@ -125,7 +137,6 @@ class Company:
         return df_demand
 
     def create_stores(self):
-        self.stores = []
         df_demand = self.load_demand_day(Days.maandag)
         for index, row in df_demand.iterrows():
             city = Cities.get_city(row[0])
@@ -193,7 +204,7 @@ create_cities(df_cities)
 cities_km = create_edge_dict(df_km.iloc[:, 0], df_km.iloc[:, 1:])
 cities_min = create_edge_dict(df_min.iloc[:, 0], df_min.iloc[:, 1:])
 
-AH = Company("AH", 36, 110, 0.8, 10, 5.8, 5, Cities.Nijmegen)
+AH = Company("AH", 36, 110, 0.8, 10, 5.8, 5, Cities.Nijmegen, load=True)
 J = Company("J", 30, 105, 1, 9.9, 6, 4, Cities.Tilburg, load=False)
 K = Company("K", 28, 107, 0.7, 10.1, 5.6, 5, Cities.Haarlem, load=False)
 FFL = Company("FFL", 40, 110, 0.9, 9.5, 5, 15, Cities.Huizen, load=False)
