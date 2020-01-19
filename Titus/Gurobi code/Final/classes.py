@@ -38,11 +38,8 @@ def create_store_edges(stores, city_dictionary, same_city_value=0):
 
             if store1.city == store2.city:
                 # Ignore edge to itself
-                if store1.branch_id == store2.branch_id:
-                    if store1.branch_id == 'hub':
-                        edge_value = 0
-                    else:
-                        continue
+                if store1.branch_id == store2.branch_id and store1.company == store2.company:
+                    continue
                 else:
                     edge_value = same_city_value
 

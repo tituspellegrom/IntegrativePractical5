@@ -54,13 +54,13 @@ def main():
     #print(c)
     Q = 15000
     q = {i: mData[i, 2] for i in N}
-    #print(q)
+    q[0]= 0
     # Output
     
     mdl = gp.Model("CVRP")
     
     x = mdl.addVars(A, vtype=gp.GRB.BINARY)
-    u = mdl.addVars(N, vtype=gp.GRB.CONTINUOUS)
+    u = mdl.addVars(V, vtype=gp.GRB.CONTINUOUS)
     
     mdl.modelSense = gp.GRB.MINIMIZE
     mdl.setObjective(gp.quicksum(x[i,j]*c[i,j] for i,j in A))
@@ -69,10 +69,13 @@ def main():
     mdl.addConstrs(gp.quicksum(x[i,j] for i in V if i!=j)==1 for j in N);
     mdl.addConstr(gp.quicksum(x[0,j] for j in N) == gp.quicksum(x[i,0] for i in N));
     mdl.addConstrs((x[i,j]==1) >> (u[i]+q[i]==u[j]) for i,j in A if i!=0 and j!=0);
-    mdl.addConstrs(u[i]>=q[i] for i in N);
-    mdl.addConstrs(u[i]<=Q for i in N);
+    mdl.addConstrs(u[i]>=q[i] for i in V);
+    mdl.addConstrs(u[i]<=Q for i in V)
     
-    mdl.Params.Timelimit = 30
+    mdl.Params.Timelimit = 1800
+    mdl.setParam(gp.GRB.Param.Cuts, 2)
+    mdl.setParam(gp.GRB.Param.Heuristics, 1)
+
     mdl.optimize()
     
     active_arcs = [a for a in A if x[a].x>0.99]
@@ -80,6 +83,7 @@ def main():
     
     pm.plotPoints(mData)
     pm.plotLine(active_arcs, mData)
+
     
 
 ###########################################################
