@@ -44,7 +44,7 @@ def run_day(company, day):
     mdl.addConstrs(u[i] >= q[i] for i in V);
     mdl.addConstrs(u[i] <= Q for i in V)
 
-    mdl.Params.Timelimit = 80
+    mdl.Params.Timelimit = 300
 
     mdl.setParam(gp.GRB.Param.Cuts, 2)
     mdl.setParam(gp.GRB.Param.Heuristics, 1)
