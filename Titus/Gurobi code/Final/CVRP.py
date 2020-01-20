@@ -73,11 +73,3 @@ def run_company(company):
         total += day_cost
 
     return total
-
-
-
-
-###########################################################
-### start main
-if __name__ == "__main__":
-    main()
